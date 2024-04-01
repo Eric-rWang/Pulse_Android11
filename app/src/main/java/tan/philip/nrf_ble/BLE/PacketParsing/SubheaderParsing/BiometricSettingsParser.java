@@ -3,7 +3,6 @@ package tan.philip.nrf_ble.BLE.PacketParsing.SubheaderParsing;
 import static tan.philip.nrf_ble.BLE.PacketParsing.BLEPacketParser.gatherSubHeadings;
 import static tan.philip.nrf_ble.BLE.PacketParsing.BLEPacketParser.getInitFileSection;
 import static tan.philip.nrf_ble.BLE.PacketParsing.SubheaderParsing.MainSettingsParser.importDigitalDisplaySubSettings;
-import static tan.philip.nrf_ble.BLE.PacketParsing.SubheaderParsing.MainSettingsParser.importImageSubSettings;
 import static tan.philip.nrf_ble.BLE.PacketParsing.SubheaderParsing.MainSettingsParser.importValueAlertSettings;
 
 import android.util.Log;
@@ -15,7 +14,6 @@ import java.util.HashMap;
 import tan.philip.nrf_ble.Algorithms.Biometric;
 import tan.philip.nrf_ble.Algorithms.BiometricsSet;
 import tan.philip.nrf_ble.Algorithms.PanTompkinsAlgorithm;
-import tan.philip.nrf_ble.Algorithms.TimeOfFlightAlgorithm;
 import tan.philip.nrf_ble.BLE.PacketParsing.SignalSetting;
 import tan.philip.nrf_ble.BLE.PacketParsing.TattooMessage;
 import tan.philip.nrf_ble.GraphScreen.UIComponents.DigitalDisplay.DigitalDisplaySettings;
@@ -39,7 +37,8 @@ public class BiometricSettingsParser {
                 cur_line = lines.get(i);
                 if (cur_line.charAt(0) != '.') {
                     //Check what algorithm to import
-                    selectBiometric(cur_line, biometrics);
+                    Biometric cur_algo = selectBiometric(cur_line);
+                    biometrics.add(cur_algo);
                 } else if (cur_line.charAt(0) == '.') {
                     //Input parameters to last Biometric
                     Biometric cur_algo = biometrics.get(biometrics.size() - 1);
@@ -57,7 +56,7 @@ public class BiometricSettingsParser {
         Log.d(TAG, "Biometrics imported.");
     }
 
-    private void selectBiometric(String algorithmAndSignals, BiometricsSet biometrics) {
+    private Biometric selectBiometric(String algorithmAndSignals) {
         String[] cur_line = algorithmAndSignals.split(": ");
         String algorithm = cur_line[0];
         String[] signal_ids = cur_line[1].split(", ");
@@ -70,17 +69,12 @@ public class BiometricSettingsParser {
             int i = Integer.parseInt(id);
             signals.put(i, signalSettings.get(i));
         }
-        byte index = (byte) (biometrics.size() + 1);
 
         switch (algorithm) {
             case "pan-tompkins":
-                biometrics.add(new PanTompkinsAlgorithm(signals, index));
-                break;
-            case "tofs":
-                biometrics.add(new TimeOfFlightAlgorithm(signals, index));
-                break;
+                return new PanTompkinsAlgorithm(signals);
             default:
-                break;
+                return null;
         }
     }
 
@@ -107,10 +101,6 @@ public class BiometricSettingsParser {
             case "log":
                 if(mainOption[1].equals("True") || mainOption[1].equals("true"))
                     biometric.logData = true;
-                break;
-            case "image":
-                biometric.setting.image = true;
-                importImageSubSettings(biometric.setting, subheadings);
                 break;
             default:
                 break;

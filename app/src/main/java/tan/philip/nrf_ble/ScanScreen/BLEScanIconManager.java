@@ -55,7 +55,7 @@ public class BLEScanIconManager {
         for (String address : icons.keySet()) {
             BLEScanIcon icon = icons.get(address);
             icon.fadeOut();
-            icons.remove(address);
+            icons.remove(icon);
             mLayout.removeView(icon);
             selectedAddresses.remove(icon.getAddress());
         }
@@ -93,9 +93,7 @@ public class BLEScanIconManager {
 
     public void updateRSSI(String address, int rssi) {
         BLEScanIcon icon = icons.get(address);
-
-        if(icon != null)
-            icon.setRSSI(rssi);
+        icon.setRSSI(rssi);
     }
 
     public void removeIcon(String address) {
@@ -154,9 +152,5 @@ public class BLEScanIconManager {
     public boolean iconSelected(String address) {
         boolean iconSelected = icons.get(address).isIconSelected();
         return iconSelected;
-    }
-
-    public Map<String, BLEScanIcon> getIcons() {
-        return icons;
     }
 }

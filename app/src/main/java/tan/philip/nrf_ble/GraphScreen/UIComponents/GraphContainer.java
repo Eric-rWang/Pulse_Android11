@@ -22,45 +22,41 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 
 import com.jjoe64.graphview.GraphView;
 import com.jjoe64.graphview.GridLabelRenderer;
-import com.jjoe64.graphview.series.Series;
-
-import java.util.ArrayList;
 
 import tan.philip.nrf_ble.GraphScreen.GraphSignal;
 import tan.philip.nrf_ble.R;
 
 public class GraphContainer extends LinearLayout {
     GraphView graphView;
-    //GraphSignal graphSignal;
+    GraphSignal graphSignal;
     private float minX = 0;
     private float maxX = 10;
-    private float minY = 0;
-    private float maxY = 1;
     private Context context;
     private float range = 1;
     private int seekbarProgress = 50;
     private boolean autoscale = false;
 
-    public GraphContainer(Context context, GraphSignal signal, Series[] dataToRender) {
+    public GraphContainer(Context context, GraphSignal signal) {
         super(context);
         this.context = context;
+        this.graphSignal = signal;
 
-        initializeViews(context, signal, dataToRender);
+        initializeViews(context);
     }
 
-    public GraphContainer(Context context, @Nullable AttributeSet attrs, GraphSignal signal, Series[] dataToRender) {
+    public GraphContainer(Context context, @Nullable AttributeSet attrs, GraphSignal signal) {
         super(context, attrs);
-        new GraphContainer(context, signal, dataToRender);
+        new GraphContainer(context, signal);
     }
 
-    public GraphContainer(Context context, @Nullable AttributeSet attrs, int defStyleAttr, GraphSignal signal, Series[] dataToRender) {
+    public GraphContainer(Context context, @Nullable AttributeSet attrs, int defStyleAttr, GraphSignal signal) {
         super(context, attrs, defStyleAttr);
-        new GraphContainer(context, attrs, signal, dataToRender);
+        new GraphContainer(context, attrs, signal);
     }
 
-    public GraphContainer(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes, GraphSignal signal, Series[] dataToRender) {
+    public GraphContainer(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes, GraphSignal signal) {
         super(context, attrs, defStyleAttr, defStyleRes);
-        new GraphContainer(context, attrs, defStyleAttr, signal, dataToRender);
+        new GraphContainer(context, attrs, defStyleAttr, signal);
     }
 
     public void setViewportMinX(float minX) {
@@ -75,34 +71,23 @@ public class GraphContainer extends LinearLayout {
         graphView.getViewport().setMaxX(maxX);
     }
 
-    public void setViewportMinY(float minY) {
-        this.minY = minY;
-        graphView.getViewport().setYAxisBoundsManual(true);
-        graphView.getViewport().setMinY(minY);
-    }
-    public void setViewportMaxY(float maxY) {
-        this.maxY = maxY;
-        graphView.getViewport().setYAxisBoundsManual(true);
-        graphView.getViewport().setMaxY(maxY);
-    }
-
-    private void initializeViews(Context context, GraphSignal signal, Series[] dataToRender) {
+    private void initializeViews(Context context) {
         LayoutInflater inflater = (LayoutInflater) context
                 .getSystemService(LAYOUT_INFLATER_SERVICE);
         inflater.inflate(R.layout.graph_layout, this);
 
         //Attach the GraphView
         this.graphView = (GraphView) this.findViewById(R.id.graph_view);
-        setupGraphView(signal.getLayoutHeight());
+        setupGraphView();
 
         //Set the display name
         TextView signalName = (TextView)this.findViewById(R.id.signal_name_display);
-        signalName.setText(signal.getName());
-        signalName.setTextColor(signal.getColorARGB());
+        signalName.setText(graphSignal.getName());
+        signalName.setTextColor(graphSignal.getColorARGB());
 
         //Attach the data series to the graph
-        for (Series s : dataToRender)
-            graphView.addSeries(s);
+        graphView.addSeries(graphSignal.getMonitor_series());
+        graphView.addSeries(graphSignal.getMonitor_mask());
 
         graphView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -112,7 +97,7 @@ public class GraphContainer extends LinearLayout {
         });
     }
 
-    private void setupGraphView(int height) {
+    private void setupGraphView() {
         //Set the GraphView y axis limites
         graphView.getViewport().setYAxisBoundsManual(!autoscale);
         graphView.getViewport().setMinY(-range/2);
@@ -132,7 +117,7 @@ public class GraphContainer extends LinearLayout {
         //Set the layout height
         //NOTE: This seems to be very slow. TO DO: look into speeding up
         graphView.setLayoutParams(new ConstraintLayout.LayoutParams(LayoutParams.MATCH_PARENT,
-                (int) convertDpToPixel(height, context)));
+                (int) convertDpToPixel(graphSignal.getLayoutHeight(), context)));
     }
 
     /**

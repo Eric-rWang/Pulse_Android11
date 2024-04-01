@@ -1,6 +1,5 @@
 package tan.philip.nrf_ble.BLE.Gatt.operations;
 
-import android.annotation.SuppressLint;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCharacteristic;
@@ -27,7 +26,6 @@ public class GattSetNotificationOperation extends GattOperation {
         mDescriptorUuid = descriptorUuid;
     }
 
-    @SuppressLint("MissingPermission")
     @Override
     public void execute(BluetoothGatt gatt) {
         BluetoothGattCharacteristic characteristic = gatt.getService(mServiceUuid).getCharacteristic(mCharacteristicUuid);

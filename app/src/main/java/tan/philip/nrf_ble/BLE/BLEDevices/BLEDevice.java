@@ -2,8 +2,6 @@ package tan.philip.nrf_ble.BLE.BLEDevices;
 
 import static tan.philip.nrf_ble.BLE.BLEDevices.DebugBLEDevice.DEBUG_MODE_BT_ID;
 import static tan.philip.nrf_ble.Constants.NUS_UUID;
-
-import android.annotation.SuppressLint;
 import android.bluetooth.BluetoothDevice;
 import android.content.Context;
 
@@ -50,7 +48,6 @@ public class BLEDevice {
     protected int menuID;
     protected boolean mConnected;
 
-    @SuppressLint("MissingPermission")
     public BLEDevice(Context context, BluetoothDevice bluetoothDevice) throws FileNotFoundException {
         this.mCtx = context;
         this.mBluetoothDevice = bluetoothDevice;

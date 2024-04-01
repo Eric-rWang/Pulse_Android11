@@ -449,4 +449,3 @@ public class BLEHandlerService extends Service {
 
     /////////////////////Transcieving/////////////////////////////////////
 }
-
